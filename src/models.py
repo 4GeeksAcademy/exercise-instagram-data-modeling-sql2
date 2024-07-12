@@ -16,6 +16,17 @@ class User(Base):
     firstname = Column(String(250), nullable=False)
     lastname = Column(String(250), nullable=False)
     email = Column(String(250), nullable=False)
+    posts = relationship('Post', backref='user')
+    comments = relationship('Comment', backref='user')
+    media = relationship('Media', backref='user')
+    Followed = relationship(
+        'User',
+        secondary=Follower,
+        primaryjoin=(Follower.user_from_id == id),
+        secondaryjoin=(Follower.user_to_id == id),
+        backref='following',
+        lazy='dinamic')
+    
 
 class Post(Base):
     __tablename__ = 'post'
@@ -23,15 +34,15 @@ class Post(Base):
     # Notice that each column is also a normal Python instance attribute.
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('user.id'))
-    user = relationship(User)
+    
 
 class Comment(Base):
     __tablename__ = 'comment'
     # Here we define columns for the table address.
     # Notice that each column is also a normal Python instance attribute.
     id = Column(Integer, primary_key=True)
+    comment_text = Column(String(250), nullable=False)
     author_id = Column(Integer, ForeignKey('user.id'))
-    author = relationship(User)
     post_id = Column(Integer, ForeignKey('post.id'))
     post = relationship(Post)
 
@@ -51,11 +62,8 @@ class Follower(Base):
     # Notice that each column is also a normal Python instance attribute.
     id = Column(Integer, primary_key=True)
     
-    user_from_id = Column(Integer, ForeignKey('user.id'))
-    user_from = relationship(User)
-    user_to_id = Column(Integer, ForeignKey('user.id'))
-    user_to = relationship(User)
-    
+
+
 
 try:
     result = render_er(Base, 'diagram.png')
