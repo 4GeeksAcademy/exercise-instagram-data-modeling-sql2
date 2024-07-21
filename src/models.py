@@ -20,11 +20,11 @@ class User(Base):
     comments = relationship('Comment', backref='user')
     media = relationship('Media', backref='user')
     Followed = relationship(
-        'User',
-        secondary=Follower,
-        primaryjoin=(Follower.user_from_id == id),
-        secondaryjoin=(Follower.user_to_id == id),
-        backref='following',
+        'Follower',
+        secondary='Follower',
+        primaryjoin=('Follower.user_from_id '== id),
+        secondaryjoin=('Follower.user_to_id' == id),
+        backref='user',
         lazy='dinamic')
     
 
@@ -34,7 +34,8 @@ class Post(Base):
     # Notice that each column is also a normal Python instance attribute.
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('user.id'))
-    
+    comment = relationship('Comment', backref='post')
+    media = relationship('Media', backref='post')
 
 class Comment(Base):
     __tablename__ = 'comment'
@@ -44,7 +45,7 @@ class Comment(Base):
     comment_text = Column(String(250), nullable=False)
     author_id = Column(Integer, ForeignKey('user.id'))
     post_id = Column(Integer, ForeignKey('post.id'))
-    post = relationship(Post)
+    
 
 class Media(Base):
     __tablename__ = 'media'
@@ -54,7 +55,7 @@ class Media(Base):
     type = Column(Integer, nullable=False)
     url = Column(String(250), nullable=False)
     post_id = Column(Integer, ForeignKey('post.id'))
-    post = relationship(Post)
+    
     
 class Follower(Base):
     __tablename__ = 'follower'
